@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDF Toolbox</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Custom CSS -->
+    <style>
+        body {
+            background-color: #f7f7f7;
+            font-family: Arial, sans-serif;
+            color: #333;
+        }
+        .container {
+            margin-top: 50px;
+        }
+        h1, h2 {
+            color: #0056b3;
+        }
+        .btn-custom {
+            background-color: #0056b3;
+            color: white;
+            font-weight: bold;
+        }
+        .btn-custom:hover {
+            background-color: #004085;
+        }
+        .form-group {
+            margin-bottom: 25px;
+        }
+        .file-upload {
+            position: relative;
+        }
+        .file-upload input[type="file"] {
+            position: absolute;
+            opacity: 0;
+            height: 100%;
+            width: 100%;
+            cursor: pointer;
+        }
+        .upload-btn {
+            display: inline-block;
+            padding: 15px 30px;
+            background-color: #28a745;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+            border-radius: 5px;
+            text-align: center;
+            width: 100%;
+            margin-top: 10px;
+        }
+        .upload-btn:hover {
+            background-color: #218838;
+        }
+        .progress-bar {
+            height: 20px;
+            background-color: #28a745;
+        }
+        .alert {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome to PDF Toolbox</h1>
+        <p>Use the tools below to convert, merge, split, and extract text from PDFs!</p>
+
+        <!-- Convert PDF to Text -->
+        <h2>Convert PDF to Text</h2>
+        <form action="/convert_pdf_to_text" method="post" enctype="multipart/form-data" id="convertTextForm">
+            <div class="form-group">
+                <label for="pdf_file">Upload PDF</label>
+                <input type="file" name="pdf_file" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-custom">Convert to Text</button>
+        </form>
+        
+        <div class="alert alert-info" id="textResult" style="display: none;">
+            <strong>Result:</strong> <span id="textOutput"></span>
+        </div>
+
+        <!-- Convert PDF to Image -->
+        <h2 class="mt-4">Convert PDF to Image</h2>
+        <form action="/convert_pdf_to_image" method="post" enctype="multipart/form-data" id="convertImageForm">
+            <div class="form-group">
+                <label for="pdf_file_image">Upload PDF</label>
+                <input type="file" name="pdf_file" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-custom">Convert to Image</button>
+        </form>
+
+        <!-- Image to PDF -->
+        <h2 class="mt-4">Image to PDF</h2>
+        <form action="/image_to_pdf" method="post" enctype="multipart/form-data" id="imageToPdfForm">
+            <div class="form-group">
+                <label for="image_file">Upload Image</label>
+                <input type="file" name="image_file" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-custom">Convert to PDF</button>
+        </form>
+
+        <!-- Merge PDFs -->
+        <h2 class="mt-4">Merge PDFs</h2>
+        <form action="/merge_pdfs" method="post" enctype="multipart/form-data" id="mergePdfForm">
+            <div class="form-group">
+                <label for="pdf_files">Upload Multiple PDFs</label>
+                <input type="file" name="pdf_files" class="form-control" multiple required>
+            </div>
+            <button type="submit" class="btn btn-custom">Merge PDFs</button>
+        </form>
+
+        <!-- Split PDF -->
+        <h2 class="mt-4">Split PDF</h2>
+        <form action="/split_pdf" method="post" enctype="multipart/form-data" id="splitPdfForm">
+            <div class="form-group">
+                <label for="pdf_file_split">Upload PDF</label>
+                <input type="file" name="pdf_file" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-custom">Split PDF</button>
+        </form>
+
+        <!-- OCR PDF -->
+        <h2 class="mt-4">OCR from PDF</h2>
+        <form action="/ocr_pdf" method="post" enctype="multipart/form-data" id="ocrPdfForm">
+            <div class="form-group">
+                <label for="pdf_file_ocr">Upload PDF for OCR</label>
+                <input type="file" name="pdf_file" class="form-control" required>
+            </div>
+            <button type="submit" class="btn btn-custom">Extract Text (OCR)</button>
+        </form>
+
+        <!-- JavaScript for interactive features -->
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                // Form submission handling
+                const forms = document.querySelectorAll("form");
+                forms.forEach(form => {
+                    form.addEventListener("submit", function(event) {
+                        event.preventDefault(); // Prevent default form submission
+                        
+                        const formData = new FormData(form);
+                        const submitButton = form.querySelector('button[type="submit"]');
+                        
+                        // Show progress bar
+                        const progressBar = document.createElement("div");
+                        progressBar.classList.add("progress");
+                        const progress = document.createElement("div");
+                        progress.classList.add("progress-bar");
+                        progress.setAttribute("role", "progressbar");
+                        progress.setAttribute("aria-valuenow", "0");
+                        progress.setAttribute("aria-valuemin", "0");
+                        progress.setAttribute("aria-valuemax", "100");
+                        progress.style.width = "0%";
+                        progressBar.appendChild(progress);
+                        form.appendChild(progressBar);
+
+                        // Simulate file upload progress (you can replace this with actual AJAX call)
+                        let progressValue = 0;
+                        const interval = setInterval(function() {
+                            progressValue += 10;
+                            progress.style.width = `${progressValue}%`;
+
+                            if (progressValue >= 100) {
+                                clearInterval(interval);
+                                submitButton.disabled = false;
+                                alert("File uploaded successfully!");
+                            }
+                        }, 500);
+                    });
+                });
+            });
+        </script>
+    </div>
+
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.5.1/dist/jquery.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
